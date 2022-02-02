@@ -1,5 +1,6 @@
-// STANDARD BOILERPLATE STUFF ---------------------------------------------------------------------------------------------------------------------
+// DEPENDENCIES AND BOILERPLATE CODE ------------------------------------------------------------------------------------------------------------
 const express = require('express');
+const fs = require('fs');
 const path = require('path');
 const noteData = require('./db/db.json');
 
@@ -10,7 +11,7 @@ const app = express();
 // MIDDLEWARE FUNCTIONS FOR DATA PARSING
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
-// SETS UP THE 'PUBLIC' FILES AS STATIC FILES
+// SETS UP THE 'PUBLIC' FILE ASSETS AS STATIC FILES
 app.use(express.static('public'));
 
 
@@ -32,10 +33,18 @@ app.get("*", (req, res) => {
 });
 
 
-// POST REQUESTS ----------------------------------------------------------------------------------------------------------------------------------
+// POST METHOD -------------------------------------------------------------------------------------------------
 
+app.post('/api/notes', (req, res) => {
+    let newNote = req.body; 
+    noteData.push(newNote);
+    fs.writeFileSync(
+        path.join(__dirname, noteData),
+        json.stringify(newNote, null, 2)
+    );
+});
 
-// WHEN THE PORT IS OPENED, LET THE USER KNOW AND PROVIDE LINK TO LOCAL HOST ----------------------------------------------------------------------
+// WHEN THE PORT IS OPENED, LET THE USER KNOW AND PROVIDE LINK TO LOCAL HOST --------------------------------------------------------------------
 app.listen(PORT, () => {
     console.log(`API server now on port ${PORT}! Found at http://localhost:${PORT}`);
 });
