@@ -25,13 +25,15 @@ app.get('/notes', (req, res) => {
     res.sendFile(path.join(__dirname, './public/notes.html'));
 });
 
-// POST METHOD -------------------------------------------------------------------------------------------------
+// API ROUTES -----------------------------------------------------------------------------------------------------------------------------------
 app.route("/api/notes")
     .get( (req, res) => {
-        res.json(noteData)
+        let noteData = fs.readFileSync('./db/db.json');
+        let rawNoteData = JSON.parse(noteData);
+        res.json(rawNoteData)
     })
     .post((req, res) => {
-        let newJsonFile = path.join(__dirname, "/db/db.json");
+        let newJsonFile = path.join(__dirname, "./db/db.json");
         //DESTRUCTURING THE PROVIDED DATA
         const {title, text} = req.body;
         // IF ALL WAS SUBMITTED CORRECTLY 
@@ -65,14 +67,11 @@ app.route("/api/notes")
                                 : console.info('Successfully updated database!')
                     ); 
                 };  
-
             }); 
             //BEFORE FINISHING, UPDATE THE PAGE TO INCLUDE THE
+            res.json(newNote)
         };
-    }) 
-
-
-    
+    }); 
     
 // WHEN THE PORT IS OPENED, LET THE USER KNOW AND PROVIDE LINK TO LOCAL HOST --------------------------------------------------------------------
 
