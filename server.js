@@ -24,62 +24,63 @@ app.get('/', (req, res) => {
 app.get('/notes', (req, res) => {
     res.sendFile(path.join(__dirname, './public/notes.html'));
 });
-app.get('/api/notes', (req, res) => {
-    res.json(noteData);
-});
-// IF THE QUERY IS NOT VALID, DIRECT USER TO THE ROOT (INDEX.HTML)
-app.get("*", (req, res) => {
-    res.sendFile(path.join(__dirname, './public/index.html'));
-});
-
 
 // POST METHOD -------------------------------------------------------------------------------------------------
+app.route("/api/notes")
+    .get( (req, res) => {
+        res.json(noteData)
+    })
+    .post((req, res) => {
+        let newJsonFile = path.join(__dirname, "/db/db.json");
+        //DESTRUCTURING THE PROVIDED DATA
+        const {title, text} = req.body;
+        // IF ALL WAS SUBMITTED CORRECTLY 
+        if (title && text) {
+            // CREATE A NEW VARIABLE FOR THE NEW NOTE
+            const newNote = {
+                title, 
+                text, 
+                // add an id later for deletion purposes
+            };
+            
+            // PULL THE EXISTING JSON DATA
+                // PATH, BUFFER ENCODING, ERROR HANDELING, AND DATA STRING
+            fs.readFile(newJsonFile, 'utf8', (err, data) => {
+                if (err) {
+                    console.error(err);
+                } else {
+                    // PARSE DATA FROM STRING 
+                    const noteData = JSON.parse(data)
 
-app.post('/api/notes', (req, res) => {
-    //DESTRUCTURING THE PROVIDED DATA
-    const {title, text} = req.body;
-    // IF ALL WAS SUBMITTED CORRECTLY 
-    if (title && text) {
-        // CREATE A NEW VARIABLE FOR THE NEW NOTE
-        const newNote = {
-            title, 
-            text, 
-            // add an id later for deletion purposes
+                    // PUSH NEW NOTE 
+                    noteData.push(newNote)
+
+                    //UPDATE THE DB.JSON 
+                    fs.writeFile(
+                        newJsonFile,
+                        JSON.stringify(noteData, null, 2), 
+                        (err) =>
+                            err
+                                ? console.error(err)
+                                : console.info('Successfully updated database!')
+                    ); 
+                };  
+
+            }); 
+            //BEFORE FINISHING, UPDATE THE PAGE TO INCLUDE THE
         };
+    }) 
 
-        // PULL THE EXISTING JSON DATA
-            // PATH, BUFFER ENCODING, ERROR HANDELING, AND DATA STRING
-        fs.readFile('./db/db.json', 'utf8', (err, data) => {
-            if (err) {
-                console.error(err);
-            } else {
-                // PARSE DATA FROM STRING 
-                const note = JSON.parse(data)
 
-                // PUSH NEW NOTE 
-                note.push(newNote)
+    
+    
+// WHEN THE PORT IS OPENED, LET THE USER KNOW AND PROVIDE LINK TO LOCAL HOST --------------------------------------------------------------------
 
-                //UPDATE THE DB.JSON 
-                fs.writeFile(
-                    './db/db.json',
-                    JSON.stringify(note, null, 2), 
-                    (err) =>
-                        err
-                            ? console.error(err)
-                            : console.info('Successfully updated database!')
-                ); 
-            };  
-        }); 
-
-        const response = {
-            status: 'success',
-            body: newNote,
-        }
-        res.json(response)
-    };
+// IF THE QUERY IS NOT VALID, DIRECT USER TO THE ROOT (INDEX.HTML)
+app.get("*", (req, res) => {
+res.sendFile(path.join(__dirname, './public/index.html'));
 });
 
-// WHEN THE PORT IS OPENED, LET THE USER KNOW AND PROVIDE LINK TO LOCAL HOST --------------------------------------------------------------------
 app.listen(PORT, () => {
     console.log(`API server now on port ${PORT}! Found at http://localhost:${PORT}`);
 });
