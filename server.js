@@ -36,12 +36,37 @@ app.get("*", (req, res) => {
 // POST METHOD -------------------------------------------------------------------------------------------------
 
 app.post('/api/notes', (req, res) => {
-    let newNote = req.body; 
-    noteData.push(newNote);
-    fs.writeFileSync(
-        path.join(__dirname, noteData),
-        json.stringify(newNote, null, 2)
-    );
+    //DESTRUCTURING THE PROVIDED DATA
+    const {title, text} = req.body;
+    // IF ALL WAS SUBMITTED CORRECTLY 
+    if (title && text) {
+        // CREATE A NEW VARIABLE FOR THE NEW NOTE
+        const newNote = {
+            title, 
+            text, 
+            // add an id later for deletion purposes
+        };
+
+        // PULL THE EXISTING JSON DATA
+            // PATH, BUFFER ENCODING, ERROR HANDELING, AND DATA STRING
+        fs.readFile('./db/db.json', 'utf8', (err, data) => {
+            if (err) {
+                console.error(err);
+            } else {
+                // PARSE DATA FROM STRING 
+                const parsedNotes = JSON.parse(data)
+
+                // PUSH NEW NOTE 
+                parsedNotes.push(newNote)
+
+                //UPDATE THE DB.JSON 
+                fs.writeFileSync(
+                    './db/db.json',
+                    JSON.stringify(parsedNotes, null, 2), 
+                ); 
+            }; 
+        }); 
+    };
 });
 
 // WHEN THE PORT IS OPENED, LET THE USER KNOW AND PROVIDE LINK TO LOCAL HOST --------------------------------------------------------------------
