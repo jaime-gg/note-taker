@@ -42,7 +42,7 @@ app.route("/api/notes")
             const newNote = {
                 title, 
                 text, 
-                // add an id later for deletion purposes
+                id: newJsonFile.length.toString(),
             };
             
             // PULL THE EXISTING JSON DATA
