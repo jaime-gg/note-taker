@@ -54,18 +54,28 @@ app.post('/api/notes', (req, res) => {
                 console.error(err);
             } else {
                 // PARSE DATA FROM STRING 
-                const parsedNotes = JSON.parse(data)
+                const note = JSON.parse(data)
 
                 // PUSH NEW NOTE 
-                parsedNotes.push(newNote)
+                note.push(newNote)
 
                 //UPDATE THE DB.JSON 
-                fs.writeFileSync(
+                fs.writeFile(
                     './db/db.json',
-                    JSON.stringify(parsedNotes, null, 2), 
+                    JSON.stringify(note, null, 2), 
+                    (err) =>
+                        err
+                            ? console.error(err)
+                            : console.info('Successfully updated database!')
                 ); 
-            }; 
+            };  
         }); 
+
+        const response = {
+            status: 'success',
+            body: newNote,
+        }
+        res.json(response)
     };
 });
 
